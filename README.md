@@ -17,6 +17,7 @@ If you enjoy using it and it is helpful to you with all the crypto trading madne
 Send me some coins so I can put more effort and time into fixing bugs making this script way better
 
 BTC: 1D3Zi7qwvtaMb9uiex9CMqTgR8dLhLqzhG
+
 btc-e codes to: blabliblubblu321
 
 ## setup:
