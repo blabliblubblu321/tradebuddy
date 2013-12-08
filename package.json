@@ -1,0 +1,33 @@
+{
+  "name": "tradebuddy",
+  "version": "0.0.1",
+  "description": "collects current funds from your btc-e account, calculates and prints out your profits to terminal all 15 seconds",
+  "homepage": "https://github.com/blabliblubblu321/tradebuddy",
+  "keywords": [
+    "btc-e",
+    "btc",
+    "ltc",
+    "bitcoin",
+    "litecoin"
+  ],
+  "author": {
+    "name": "blabliblubblu321"
+  },
+  "licenses": [{
+    "type": "ISC",
+    "url": "https://github.com/pskupinski/node-btc-e/blob/master/LICENSE.txt"
+  }],
+  "dependencies": {
+    "btc-e": "*",
+    "cli-color": "*"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/blabliblubblu321/tradebuddy"
+  },
+  "main": "app.js",
+  "engines": {
+    "node": ">=0.8"
+  },
+  "readmeFilename": "README.md"
+}
