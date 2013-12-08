@@ -12,6 +12,9 @@ sell: btc_usd	amount: 0.3763	sell	rate: 762.00	current: 737.00 usd	profit: 9.407
 sell: btc_usd	amount: 1.4691	sell	rate: 765.00	current: 737.00 usd	profit: 41.135 usd	3.7%	profit change: 0%
 ```
 
+### nonce errors
+the btc-e node.js module has a small bug that leads iit to sometimes use the same nonce in two api calls. I have created a pull request until its merged use this fixed version: https://github.com/blabliblubblu321/node-btc-e
+
 simple node.js script, that collects current funds from your btc-e account, 
 calculates your profits based on your last trades and the current price and
 print them out to the terminal every few seconds
