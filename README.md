@@ -4,6 +4,12 @@ collects current funds from your btc-e account, calculates and prints out your p
 
 I have written this script to help me keep an eye on my recent trades but I am absolutely new to this whole trading thing so don't hesiatate to tell me if you have suggestions on what I got wrong or what is missing in here.
 
+simple node.js script, that collects current funds from your btc-e account, 
+calculates your profits based on your last trades and the current price and
+print them out to the terminal every few seconds
+
+This piece of software probably still has some bugs please open a github issue if you find something
+
 author: **blabliblubblu321**
 
 ### example
@@ -14,12 +20,6 @@ sell: btc_usd	amount: 1.4691	sell	rate: 765.00	current: 737.00 usd	profit: 41.13
 
 ### nonce errors
 the btc-e node.js module has a small bug that leads iit to sometimes use the same nonce in two api calls. I have created a pull request until its merged use this fixed version: https://github.com/blabliblubblu321/node-btc-e
-
-simple node.js script, that collects current funds from your btc-e account, 
-calculates your profits based on your last trades and the current price and
-print them out to the terminal every few seconds
-
-This piece of software probably still has some bugs please open a github issue if you find something
 
 ## tips/donations:
 
