@@ -2,6 +2,8 @@
 
 collects current funds from your btc-e account, calculates and prints out your profits to terminal all 15 seconds
 
+I have written this script to help me keep an eye on my recent trades but I am absolutely new to this whole trading thing so don't hesiatate to tell me if you have suggestions on what I got wrong or what is missing in here.
+
 author: **blabliblubblu321**
 
 ### example
