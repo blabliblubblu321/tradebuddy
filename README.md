@@ -21,6 +21,10 @@ sell: btc_usd	amount: 1.4691	sell	rate: 765.00	current: 737.00 usd	profit: 41.13
 ### nonce errors
 the btc-e node.js module has a small bug that leads iit to sometimes use the same nonce in two api calls. I have created a pull request until its merged use this fixed version: https://github.com/blabliblubblu321/node-btc-e
 
+### requirements
+- node.js
+- btc-e api key (info credentials)
+
 ## tips/donations:
 
 This script is absolutely free to use do with it whatever you want
