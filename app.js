@@ -60,9 +60,9 @@ Ctrader.classes.Trade = function(options) {
         var priceNow = self.amount * self.parent.getCurrentPrice(self.pair);
         return (priceNow - paid).toFixed(8);
       } else {
-        var paid = self.amount * self.rate;
-        var priceNow = self.amount * self.parent.getCurrentPrice(self.pair);
-        return (paid - priceNow).toFixed(8);
+        // var paid = self.amount * self.rate;
+        // var priceNow = self.amount * self.parent.getCurrentPrice(self.pair);
+        return (((self.amount / self.parent.getCurrentPrice(self.pair)) - (self.amount / self.rate)) * self.rate).toFixed(8);
 
       }
 
@@ -341,7 +341,7 @@ Ctrader.classes.Exchange = function(options) {
 
           if (getTarget(tradeArray[i].pair) === 'usd' && baseOrTarget === 'usd') {
 
-            tradeArray[i].amount = tmpFunds[baseOrTarget] / tradeArray[i].rate;
+            tradeArray[i].amount = (tmpFunds[baseOrTarget] / tradeArray[i].rate);
           } else {
             tradeArray[i].amount = tmpFunds[baseOrTarget];
           }
