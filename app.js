@@ -62,6 +62,9 @@ Ctrader.classes.Trade = function(options) {
       } else {
         // var paid = self.amount * self.rate;
         // var priceNow = self.amount * self.parent.getCurrentPrice(self.pair);
+        if (getBase(self.pair) === 'btc') {
+          return ((self.amount * self.rate) - (self.amount * self.parent.getCurrentPrice(self.pair))).toFixed(8);
+        }
         return (((self.amount / self.parent.getCurrentPrice(self.pair)) - (self.amount / self.rate)) * self.rate).toFixed(8);
 
       }
