@@ -47,6 +47,7 @@ Ctrader.classes.Trade = function(options) {
   }
 
   this.baseComm = getTarget(this.pair);
+  if (this.type === 'sell' && getBase(self.pair) !== 'btc') this.baseComm = getBase(this.pair);
 
   this.setParent = function(parent) {
     self.parent = parent;
@@ -342,7 +343,7 @@ Ctrader.classes.Exchange = function(options) {
           // console.log(tradeArray[i]);
           if (self.pairs.indexOf(tradeArray[i].pair) === -1) self.pairs.push(tradeArray[i].pair);
 
-          if (getTarget(tradeArray[i].pair) === 'usd' && baseOrTarget === 'usd') {
+          if (getTarget(tradeArray[i].pair) === baseOrTarget) {
 
             tradeArray[i].amount = (tmpFunds[baseOrTarget] / tradeArray[i].rate);
           } else {
