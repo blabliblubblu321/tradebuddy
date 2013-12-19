@@ -32,7 +32,9 @@ btceTrade = new BTCE(apiKey, apiSecret);
 
 Ctrader = {
   classes: {},
-  base: 'btc'
+  base: 'btc',
+  onlyShowBase: true,
+  getRatesFor: ['btc_usd', 'ltc_usd', 'ltc_btc', 'nmc_btc', 'nmc_usd']
 };
 
 Ctrader.classes.Trade = function(options) {
@@ -57,54 +59,63 @@ Ctrader.classes.Trade = function(options) {
     if (self.parent.getCurrentPrice(self.pair)) {
       if (self.type === 'buy') {
 
-        var paid = self.amount * self.rate;
-        var priceNow = self.amount * self.parent.getCurrentPrice(self.pair);
-        return (priceNow - paid).toFixed(8);
+        return self.getAmountNow() - self.getAmountPayed();
       } else {
-        // var paid = self.amount * self.rate;
-        // var priceNow = self.amount * self.parent.getCurrentPrice(self.pair);
-        if (getBase(self.pair) === 'btc') {
-          return ((self.amount * self.rate) - (self.amount * self.parent.getCurrentPrice(self.pair))).toFixed(8);
-        }
-        return (((self.amount / self.parent.getCurrentPrice(self.pair)) - (self.amount / self.rate)) * self.rate).toFixed(8);
-
+        return self.getAmountPayed() - self.getAmountNow();
       }
 
     }
     return null;
   };
 
-  this.logProfit = function() {
-    var profit = self.getProfit();
-    var cli_color = 'green';
-    if (profit < 0) cli_color = 'red';
+  this.getAmountPayed = function() {
+    if (self.parent.getCurrentPrice(self.pair)) {
 
+      if (getBase(self.pair) === Ctrader.base) {
+        return self.amount * self.rate;
+      }
 
+      return self.parent.convertCoins(self.rate * self.amount, getTarget(self.pair), Ctrader.base);
+    }
+    return null;
+  };
 
-    var profitChange = 0;
-    if (typeof self.lastProfit !== 'undefined') {
-      var lastProfitBase = self.lastProfit;
-      if (self.lastProfit < 0) lastProfitBase = self.lastProfit * -1;
-      profitChange = ((((profit - self.lastProfit) / lastProfitBase) * 100)).toFixed(2);
+  this.getAmountNow = function() {
+    if (self.parent.getCurrentPrice(self.pair)) {
 
-      if (isNaN(profitChange)) profitChange = 0;
+      if (getBase(self.pair) === getTarget(self.pair)) {
+        return self.amount * self.parent.getCurrentPrice(self.pair);
+      }
+      return self.parent.convertCoins(self.amount * self.parent.getCurrentPrice(self.pair), getTarget(self.pair), Ctrader.base);
 
-      if (self.lastProfit < 0 && profit > 0 && profitChange < 0) profitChange = profitChange * -1;
 
     }
+    return null;
+  };
 
+  this.getProfitPercent = function() {
 
-    var change_color = 'green';
-    if (profitChange < 0) change_color = 'red';
+    var profit = self.getProfit();
 
     var profitpc = ((((self.parent.rates[self.pair] - self.rate) / self.rate) * 100)).toFixed(1);
 
     if ((profit < 0 && profitpc > 0) || (profit > 0 && profitpc < 0)) profitpc = profitpc * -1;
 
+    return profitpc;
+  };
 
-    console.log(self.type + ': ' + self.pair + '\tamount: ' + self.fiveDigits(self.amount) + '\t' + self.type + '\trate: ' + self.fiveDigits(self.rate) + '\tcurrent: ' + self.fiveDigits(self.parent.rates[self.pair]) + ' ' + getTarget(self.pair) + '\tprofit: ' + clc[cli_color](self.fiveDigits(self.getProfit()) + ' ' + self.baseComm + '\t' + profitpc + '%') + '\tprofit change: ' + clc[change_color](profitChange + '%'));
+  this.logProfit = function() {
+    var profit = self.getProfit();
+    var payed = self.getAmountPayed();
 
-    self.lastProfit = profit;
+    var cli_color = 'green';
+    if (profit < 0) cli_color = 'red';
+
+    // if (payed > 0) {
+    console.log(self.type + ': ' + self.pair + '\tamount: ' + self.fiveDigits(self.amount) + '\t' + self.type + '\trate: ' + self.fiveDigits(self.rate) + '\tcurrent: ' + self.fiveDigits(self.parent.rates[self.pair]) + ' ' + getTarget(self.pair) + '\tpayed: ' + self.fiveDigits(payed) + ' ' + Ctrader.base + '\tnow: ' + self.fiveDigits(self.getAmountNow()) + ' ' + Ctrader.base + '\t\tprofit: ' + clc[cli_color](((profit > 0) ? '+' : '') + self.fiveDigits(profit) + ' ' + Ctrader.base + '\t' + self.getProfitPercent() + '%'));
+
+    // }
+
   };
 
   this.fiveDigits = function(amount) {
@@ -140,6 +151,26 @@ Ctrader.classes.Exchange = function(options) {
       this.options[key] = options[key];
     }
   }
+  this.convertCoins = function(amount, source_c, target_c) {
+    // console.log(self.rates);
+    if (source_c === target_c) {
+      return amount;
+    }
+    if (typeof self.rates[source_c + '_' + target_c] !== 'undefined') {
+      // console.log(1);
+      return amount * self.rates[source_c + '_' + target_c];
+    } else if (typeof self.rates[source_c + '_usd'] !== 'undefined' && typeof self.rates['usd_' + target_c] !== 'undefined') {
+      // console.log(2);
+      return amount * self.rates[source_c + '_usd'] * self.rates['target_' + target_c];
+    } else if (typeof self.rates[source_c + '_btc'] !== 'undefined' && typeof self.rates['btc_' + target_c] !== 'undefined') {
+      // console.log(3);
+      return amount * self.rates[source_c + '_btc'] * self.rates['btc_' + target_c];
+    } else if (source_c === 'usd' && typeof self.rates[target_c + '_usd'] !== 'undefined') {
+      // console.log(4);
+      return amount / self.rates[target_c + '_usd'];
+    }
+    return 0;
+  };
 
   this.logAccountBalance = function() {
     // console.log(self.funds);
@@ -157,8 +188,13 @@ Ctrader.classes.Exchange = function(options) {
     }
     dollarValue += (tmpBTC * self.rates['btc_usd']);
 
-    console.log('Balance: ' + dollarValue.toFixed(2) + ' $');
-    console.log('Balance: ' + (dollarValue / self.rates.btc_usd).toFixed(4) + ' BTC');
+    if (dollarValue > 0) {
+
+      console.log('\n');
+      console.log('Balance: ' + dollarValue.toFixed(2) + ' $');
+      console.log('Balance: ' + (dollarValue / self.rates.btc_usd).toFixed(4) + ' BTC');
+    }
+
   };
 
   this.addTrade = function(options) {
@@ -188,25 +224,39 @@ Ctrader.classes.Exchange = function(options) {
         return;
       }
       self.rates[tradePair] = data.ticker.sell;
-      self.logTrades(tradePair);
       // console.log('ticker callback');
       if (typeof done !== 'undefined') done();
     };
   };
+
   this.tickerFunction = function(pair) {
     return function(done) {
       // console.log('ticker start');
       btceTrade.ticker(pair, self.updateRatesFor(pair, done));
     };
   };
-  this.updateRates = function() {
 
-    self.refreshCounter++;
+  this.updateRates = function() {
+    if (typeof self.pairs === 'undefined') {
+      self.pairs = [];
+    }
+    for (var i = 0; i < Ctrader.getRatesFor.length; i++) {
+
+      if (self.pairs.indexOf(Ctrader.getRatesFor[i]) === -1) {
+        self.pairs.push(Ctrader.getRatesFor[i]);
+      }
+    }
+
+    if (typeof self.pairs !== 'undefined') {
+      self.refreshCounter++;
+    }
+
+
     if (self.refreshCounter > 2) {
       self.refreshCounter = 0;
       self.refresh(self.updateRates);
     } else {
-      console.log('==================================================');
+      console.log('\n');
 
       if (typeof self.pairs !== 'undefined') {
         var callSync = [];
@@ -214,6 +264,8 @@ Ctrader.classes.Exchange = function(options) {
           callSync.push(self.tickerFunction(self.pairs[i]));
         }
         callSync.push(function() {
+
+          self.logAllTrades();
           setTimeout(self.updateRates, 15000);
         });
 
@@ -223,12 +275,17 @@ Ctrader.classes.Exchange = function(options) {
 
     }
 
+  };
 
-
+  this.logAllTrades = function() {
+    for (var i = 0; i < self.pairs.length; i++) {
+      self.logTrades(self.pairs[i]);
+    }
   };
 
   this.logTrades = function(pair) {
     for (var i = 0; i < self.trades.length; i++) {
+
       if (self.trades[i].pair === pair) self.trades[i].logProfit();
     }
   };
@@ -237,6 +294,7 @@ Ctrader.classes.Exchange = function(options) {
     if (typeof self.rates[pair] !== 'undefined') {
       return self.rates[pair];
     }
+    return false;
   };
 
   this.setFunds = function(funds) {
@@ -378,6 +436,8 @@ Ctrader.classes.Exchange = function(options) {
 
   this.init();
 };
+
+// functions
 
 function notTargetUsd(trade) {
   if (getBase(trade.pair) === 'usd' && trade.type === 'buy') {
